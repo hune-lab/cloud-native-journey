@@ -19,11 +19,11 @@ Roles marked *feature gate* below exist only when that gate is on. The default v
 
 ## Well-known users and groups
 
-There is no `User` or `Group` object in Kubernetes. These names are produced by the authenticators, and the default bindings below refer to them.
+There is no `User` or `Group` object in Kubernetes. These names are produced by the authenticators, and the default bindings below refer to them. The prefix `system:` is reserved for Kubernetes: never give it to your own users or groups.
 
 | Name | Kind | Meaning | Source |
 |---|---|---|---|
-| `system:masters` | group | full access: bound to `cluster-admin` | [user.go L71](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiserver/pkg/authentication/user/user.go#L71) |
+| `system:masters` | group | full access, **hardcoded**: a dedicated authorizer allows every request from this group, before RBAC ([reload.go L110-115](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/kubeapiserver/authorizer/reload.go#L110-L115)). The `cluster-admin` binding is redundant, and removing it revokes nothing. Docs: [avoid adding users to this group](https://kubernetes.io/docs/concepts/security/rbac-good-practices/#least-privilege) | [user.go L71](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiserver/pkg/authentication/user/user.go#L71) |
 | `system:nodes` | group | kubelets | [user.go L72](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiserver/pkg/authentication/user/user.go#L72) |
 | `system:monitoring` | group | read metrics and health endpoints | [user.go L73](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiserver/pkg/authentication/user/user.go#L73) |
 | `system:unauthenticated` | group | every request no authenticator recognized | [user.go L74](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiserver/pkg/authentication/user/user.go#L74) |
