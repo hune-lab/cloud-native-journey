@@ -8,5 +8,5 @@ Every entry links to the exact line of the source that defines it, at a pinned c
 
 ### [apiserver journey](apiserver-journey/)
 
-- [Built-in API groups and resources](apiserver-journey/cheatsheets/api-groups.md) (Kubernetes v1.37.2)
+- [Built-in API groups, resources and subresources](apiserver-journey/cheatsheets/api-groups.md) (Kubernetes v1.37.2)
 - [Default RBAC: roles, bindings and identities](apiserver-journey/cheatsheets/rbac-defaults.md) (Kubernetes v1.37.2)

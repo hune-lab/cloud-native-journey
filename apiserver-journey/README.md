@@ -6,5 +6,5 @@ Articles: [The Cloud Native Journey, apiserver](https://hune-lab.com/the-cloud-n
 
 ## Cheatsheets
 
-- [Built-in API groups and resources](cheatsheets/api-groups.md)
+- [Built-in API groups, resources and subresources](cheatsheets/api-groups.md)
 - [Default RBAC: roles, bindings and identities](cheatsheets/rbac-defaults.md)

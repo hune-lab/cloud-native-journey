@@ -1,4 +1,4 @@
-# Kubernetes built-in API groups and resources
+# Kubernetes built-in API groups, resources and subresources
 
 The API groups a kube-apiserver serves out of the box, and their resources, read from the source of **Kubernetes v1.37.2** (commit [`c50e5395f1ae`](https://github.com/kubernetes/kubernetes/tree/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32)). Each row links to the code that registers the resources.
 
@@ -45,3 +45,43 @@ Docs: [The Kubernetes API](https://kubernetes.io/docs/concepts/overview/kubernet
 | `storagemigration.k8s.io` | `storageversionmigrations` | [`storage_storagemigration.go` L77](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/storagemigration/rest/storage_storagemigration.go#L77) |
 
 The core group has no name: its resources are served under `/api/v1`, all the others under `/apis/<group>/<version>`.
+
+## Subresources
+
+A subresource is registered in the same table as its resource, under `resource/subresource`, for example `storage["deployments/scale"]`. For RBAC, each one is a permission of its own: `get pods` does not grant `get pods/log`, and `create pods/exec` must be granted explicitly. Docs: [Referring to resources](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources).
+
+`pods/resize` exists because the feature gate `InPlacePodVerticalScaling` is on by default since v1.35.
+
+| Group | Resource | Subresources | Source |
+|---|---|---|---|
+| `""` (core) | `pods` | `attach`, `binding`, `ephemeralcontainers`, `eviction`, `exec`, `log`, `portforward`, `proxy`, `resize`, `status` | [`storage_core.go` L250-262](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L250-L262) |
+| `""` (core) | `nodes` | `proxy`, `status` | [`storage_core.go` L312-313](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L312-L313) |
+| `""` (core) | `services` | `proxy`, `status` | [`storage_core.go` L302-303](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L302-L303) |
+| `""` (core) | `serviceaccounts` | `token` | [`storage_core.go` L290-296](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L290-L296) |
+| `""` (core) | `namespaces` | `finalize`, `status` | [`storage_core_generic.go` L136-137](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core_generic.go#L136-L137) |
+| `""` (core) | `replicationcontrollers` | `scale`, `status` | [`storage_core.go` L280-282](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L280-L282) |
+| `""` (core) | `persistentvolumes` | `status` | [`storage_core.go` L322](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L322) |
+| `""` (core) | `persistentvolumeclaims` | `status` | [`storage_core.go` L327](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core.go#L327) |
+| `""` (core) | `resourcequotas` | `status` | [`storage_core_generic.go` L131](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/core/rest/storage_core_generic.go#L131) |
+| `apps` | `deployments` | `scale`, `status` | [`storage_apps.go` L62-63](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/apps/rest/storage_apps.go#L62-L63) |
+| `apps` | `statefulsets` | `scale`, `status` | [`storage_apps.go` L73-74](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/apps/rest/storage_apps.go#L73-L74) |
+| `apps` | `replicasets` | `scale`, `status` | [`storage_apps.go` L94-95](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/apps/rest/storage_apps.go#L94-L95) |
+| `apps` | `daemonsets` | `status` | [`storage_apps.go` L84](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/apps/rest/storage_apps.go#L84) |
+| `batch` | `jobs` | `status` | [`storage_batch.go` L57](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/batch/rest/storage_batch.go#L57) |
+| `batch` | `cronjobs` | `status` | [`storage_batch.go` L67](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/batch/rest/storage_batch.go#L67) |
+| `autoscaling` | `horizontalpodautoscalers` | `status` | [`storage_autoscaling.go` L92](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/autoscaling/rest/storage_autoscaling.go#L92) |
+| `policy` | `poddisruptionbudgets` | `status` | [`storage_policy.go` L55](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/policy/rest/storage_policy.go#L55) |
+| `networking.k8s.io` | `ingresses` | `status` | [`storage_settings.go` L76](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/networking/rest/storage_settings.go#L76) |
+| `networking.k8s.io` | `servicecidrs` | `status` | [`storage_settings.go` L104](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/networking/rest/storage_settings.go#L104) |
+| `storage.k8s.io` | `volumeattachments` | `status` | [`storage_storage.go` L93](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/storage/rest/storage_storage.go#L93) |
+| `storage.k8s.io` | `csinodes` | `status` | [`storage_storage.go` L112](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/storage/rest/storage_storage.go#L112) |
+| `certificates.k8s.io` | `certificatesigningrequests` | `approval`, `status` | [`storage_certificates.go` L85-86](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/certificates/rest/storage_certificates.go#L85-L86) |
+| `certificates.k8s.io` | `podcertificaterequests` | `status` | [`storage_certificates.go` L108](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/certificates/rest/storage_certificates.go#L108) |
+| `admissionregistration.k8s.io` | `validatingadmissionpolicies` | `status` | [`storage_apiserver.go` L107](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/admissionregistration/rest/storage_apiserver.go#L107) |
+| `flowcontrol.apiserver.k8s.io` | `flowschemas` | `status` | [`storage_flowcontrol.go` L78](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/flowcontrol/rest/storage_flowcontrol.go#L78) |
+| `flowcontrol.apiserver.k8s.io` | `prioritylevelconfigurations` | `status` | [`storage_flowcontrol.go` L88](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/flowcontrol/rest/storage_flowcontrol.go#L88) |
+| `resource.k8s.io` | `resourceclaims` | `status` | [`storage_resource.go` L107](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/resource/rest/storage_resource.go#L107) |
+| `resource.k8s.io` | `devicetaintrules` | `status` | [`storage_resource.go` L98](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/resource/rest/storage_resource.go#L98) |
+| `storagemigration.k8s.io` | `storageversionmigrations` | `status` | [`storage_storagemigration.go` L84](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/pkg/registry/storagemigration/rest/storage_storagemigration.go#L84) |
+| `apiextensions.k8s.io` | `customresourcedefinitions` | `status` | [`apiserver.go` L156](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/apiextensions-apiserver/pkg/apiserver/apiserver.go#L156) |
+| `apiregistration.k8s.io` | `apiservices` | `status` | [`storage_apiservice.go` L41](https://github.com/kubernetes/kubernetes/blob/c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32/staging/src/k8s.io/kube-aggregator/pkg/registry/apiservice/rest/storage_apiservice.go#L41) |
